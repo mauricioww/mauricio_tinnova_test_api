@@ -9,9 +9,9 @@ module Punk
       parsed_args = {
         beer_name: (args['name'] if args['name'].present?),
         abv_lt: ((args['abv'].to_f + 0.1) if args['abv'].present?),
-        abv_gt: ((args['abv'].to_f - 0.1) if args['abv'].present?)
+        abv_gt: ((args['abv'].to_f - 0.1) if args['abv'].present?),
+        page: (args['page'] if args['page'].present?)
       }.compact
-      # binding.pry
       res = @connection.get('', parsed_args)
       if res.success?
         save_beer(JSON.parse(res.body))
