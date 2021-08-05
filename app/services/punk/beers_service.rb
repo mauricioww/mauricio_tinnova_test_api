@@ -6,23 +6,24 @@ module Punk
     end
 
     def lookup(**args)
-      if args.key?(:abv)
-        avb = args[:abv]
-        args.delete(:abv)
-        args[:abv_lt] = abv + 0.1
-        args[:abv_gt] = abv - 0.1
+      parsed_args = {
+        beer_name: (args['name'] if args['name'].present?),
+        abv_lt: ((args['abv'] + 0.1) if args['abv'].present?),
+        abv_gt: ((args['abv'] - 0.1) if args['abv'].present?)
+      }.compact
+      res = @connection.get('', args)
+      if res.success?
+        save_beer(JSON.parse(res.body))
       end
-      response @connection.get('', args)
+      res
     end
 
     def get_beer(id)
       res = @connection.get('', {ids: id})
-      save_beer(JSON.parse(res.body))
+      if res.success?
+        save_beer(JSON.parse(res.body))
+      end
       res
-    end
-
-    def get_all
-      
     end
 
     private
