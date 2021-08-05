@@ -34,6 +34,7 @@ class BeersController < ApplicationController
     beers = Beer.joins(:user_beers).merge(@seen_beers)
     render json: {
       status: 200 ,
+      total: beers.length,
       seen_beers: beers 
     }
   end
@@ -42,6 +43,7 @@ class BeersController < ApplicationController
     beers = Beer.joins(:user_beers).merge(@seen_beers.where(favorite: true))
     render json: {
       status: 200,
+      total: beers.length,
       favorites_beers: beers 
     }
   end
