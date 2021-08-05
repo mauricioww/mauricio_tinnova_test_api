@@ -1,11 +1,13 @@
 class BeersController < ApplicationController
   before_action :authenticate!
   before_action :initalize_beer_service!
+  before_action :load_seen_beers, only: %i(get_all my_favorites mark_favorite)
 
   def index
-    response = @beer_service.get_all
+    response = @beer_service.lookup(beer_params)
     render json: {
-        hello: @current_user.name
+      status: response.status,
+      beer: JSON.parse(response.body)
     }
   end
 
@@ -18,11 +20,18 @@ class BeersController < ApplicationController
   end
 
   def mark_favorite
+    asso = UserBeer.find_by(beer_id: beer_params['id'])
+    render json: { status: '500' } if asso.blank?
+    asso.update(favorite: true)
+    render json: {
+      status: 200,
+      favorite: asso.favorite,
+      beer: asso.beer
+    }
   end
 
   def get_all
-    seen = UserBeer.where(user: @current_user)
-    beers = Beer.joins(:user_beers).merge(seen)
+    beers = Beer.joins(:user_beers).merge(@seen_beers)
     render json: {
       status: 200 ,
       seen_beers: beers 
@@ -30,8 +39,7 @@ class BeersController < ApplicationController
   end
 
   def my_favorites
-    seen = UserBeer.where(user: @current_user, favorite: true)
-    beers = Beer.joins(:user_beers).merge(seen)
+    beers = Beer.joins(:user_beers).merge(@seen_beers.where(favorite: true))
     render json: {
       status: 200,
       favorites_beers: beers 
@@ -46,5 +54,9 @@ class BeersController < ApplicationController
 
   def beer_params
     params.permit(:id, :name, :abv, :page)
+  end
+
+  def load_seen_beers
+    @seen_beers = UserBeer.where(user: @current_user)
   end
 end
