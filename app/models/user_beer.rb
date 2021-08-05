@@ -19,6 +19,6 @@
 #  fk_rails_...  (user_id => users.id)
 #
 class UserBeer < ApplicationRecord
-  belons_to :user
+  belongs_to :user
   belongs_to :beer
 end
