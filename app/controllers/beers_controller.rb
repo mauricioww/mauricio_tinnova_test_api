@@ -7,7 +7,7 @@ class BeersController < ApplicationController
     response = @beer_service.lookup(beer_params)
     render json: {
       status: response.status,
-      beer: JSON.parse(response.body)
+      beers: JSON.parse(response.body)
     }
   end
 
